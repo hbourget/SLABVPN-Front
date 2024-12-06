@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <title>VPN Checker - SecuLabs</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-o9KHDV3604XL2fZfAoigYYw8LbJhDg+sCUvngbJ8PL0=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-o9KHDV3604XL2fZfAoigYYw8LbJhDg+sCUvngbJ8PL0=" crossorigin=""></script>
+
+    <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+{% include 'header.html' %}
+
+<div class="d-flex justify-content-center" style="margin-top: 40px;">
+  <div class="card position-relative" style="width: 46rem;">
+    {% if vpn_status is True and provider %}
+      <img src="{% static provider|add:'.png' %}" alt="{{ provider }} Logo" style="position: absolute; top: 30px; right: 30px;">
+    {% endif %}
+    <div class="card-body">
+      <h5 class="card-title">
+        {% if vpn_status is not None %}
+          {% if vpn_status is True %}
+            <h2>VPN Status <span class="badge badge-success">True</span></h2>
+          {% else %}
+            <h2>VPN Status <span class="badge badge-danger">False</span></h2>
+          {% endif %}
+        {% else %}
+          <h4 class="orange-lab">Introduction</h4>
+        {% endif %}
+      </h5>
+      <br>
+    {% if vpn_status is False %}
+        This IP Address has not been recorded by our systems since <b>{{ date_since }}</b>
+    {% endif %}
+
+    {% if vpn_status is True %}
+    <div>
+        <p class="card-text">
+            <span class="data-label"><b>Provider</b>:</span>
+            <span class="data-value">{{ provider }}</span>
+        </p>
+        <p class="card-text">
+            <span class="data-label"><b>Location</b>:</span>
+            <span class="data-value">{{ city }}, {{ country }}</span>
+        </p>
+        <p class="card-text">
+            <span class="data-label"><b>Server</b>:</span>
+            <span class="data-value">{{ server }}</span>
+        </p>
+        <p class="card-text">
+            <span class="data-label"><b>Last seen on</b>:</span>
+            <span class="data-value">{{ created_at }}</span>
+        </p>
+        <p class="card-text">
+            <span class="data-label"><b>Seen :</b></span>
+            <span class="data-value" id="toggleTableBtn" data-count="{{ total_count }}" style="cursor: pointer; color: forestgreen;">
+                x{{ total_count }} time(s)
+            </span>
+        </p>
+        <h3>
+            {% if is_outbound is False %}
+                <span class="badge badge-warning">This is an inbound IP</span>
+            {% endif %}
+        </h3>
+
+        <div id="recordsTable" style="display:block;">
+            <h4>All records:</h4>
+            <input type="text" id="searchBar" placeholder="Search..." onkeyup="filterTable()" class="form-control" style="margin-bottom: 10px;">
+
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Server</th>
+                        <th>Provider</th>
+                        <th>Location</th>
+                        <th>Seen on</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    {% for out_ip in outbound_ips %}
+                    <tr>
+                        <td>{{ out_ip.server.name }}</td>
+                        <td>{{ out_ip.server.provider.name }}</td>
+                        <td>{{ out_ip.server.city.name }}, {{ out_ip.server.city.country.name }}</td>
+                        <td>{{ out_ip.created_at }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% for in_ip in inbound_ips %}
+                    <tr>
+                        <td>{{ in_ip.server.name }}</td>
+                        <td>{{ in_ip.server.provider.name }}</td>
+                        <td>{{ in_ip.server.city.name }}, {{ in_ip.server.city.country.name }}</td>
+                        <td>{{ in_ip.created_at }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+    <script>
+        function filterTable() {
+            let searchInput = document.getElementById('searchBar').value.toLowerCase();
+            let tableRows = document.querySelectorAll('#tableBody tr');
+
+            tableRows.forEach(row => {
+                const rowText = row.textContent.toLowerCase();
+                row.style.display = rowText.includes(searchInput) ? '' : 'none';
+            });
+        }
+    </script>
+
+    <script>
+        var count = document.getElementById('toggleTableBtn').getAttribute('data-count');
+        if (parseInt(count) > 1) {
+            document.getElementById('toggleTableBtn').addEventListener('click', function() {
+                var table = document.getElementById('recordsTable');
+                if (table.style.display === 'none') {
+                    table.style.display = 'block';
+                } else {
+                    table.style.display = 'none';
+                }
+            });
+        } else {
+            document.getElementById('toggleTableBtn').style.cursor = 'default';
+            document.getElementById('toggleTableBtn').style.color = 'gray';
+        }
+    </script>
+    {% endif %}
+
+
+    {% if vpn_status is None %}
+        <p class="card-text">This tool is designed to help identify IP addresses that are associated with VPN providers. <br>By entering an IP address, you can quickly determine if the address is linked to a VPN service, providing valuable insights.<br>The datetime picker allows you to select a date from where the tool will start looking for records. Any VPN entry last seen prior to this date by our systems will not be considered.</p>
+    {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="chart-row">
+    <div class="chart-container">
+        <canvas id="countriesPerProviderChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <canvas id="serversPerProviderChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <canvas id="entriesPerMonthChart"></canvas>
+    </div>
+</div>
+
+
+<script>
+    const providersCountries = JSON.parse('{{ providers_countries|safe }}');
+    const countryCountsPerProvider = JSON.parse('{{ country_counts_per_provider|safe }}');
+    const months = JSON.parse('{{ months|safe }}');
+    const entriesCountPer3m = JSON.parse('{{ entries_count_per_3m|safe }}');
+    const providersServers = JSON.parse('{{ providers_servers|safe }}');
+    const serverCountsPerProvider = JSON.parse('{{ server_counts_per_provider|safe }}');
+    const totalEntries = JSON.parse('{{ total_entries|safe }}');
+
+    // Bar Chart - Number of Countries Per Provider
+    const countryCtx = document.getElementById('countriesPerProviderChart').getContext('2d');
+    const alternatingColors = [];
+    for (let i = 0; i < providersCountries.length; i++) {
+        alternatingColors.push(i % 2 === 0 ? 'rgba(241,59,3,0.4)' : 'rgba(140,164,191,0.4)');
+    }
+
+    new Chart(countryCtx, {
+        type: 'bar',
+        data: {
+            labels: providersCountries,
+            datasets: [{
+                label: 'Number of countries per provider',
+                data: countryCountsPerProvider,
+                backgroundColor: alternatingColors,
+                borderColor: alternatingColors.map(color => color.replace('0.4', '1')),
+                borderWidth: 1,
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Doughnut Chart - Number of Servers Per Provider
+    const serverCtx = document.getElementById('serversPerProviderChart').getContext('2d');
+    const serverColors = {
+        "NordVPN": 'rgba(40,94,255,0.5)',
+        "ExpressVPN": 'rgba(255,0,0,0.5)',
+        "Surfshark": 'rgba(75, 192, 192, 0.5)',
+        "CyberGhost": 'rgba(255, 206, 86, 0.5)',
+        "ProtonVPN": 'rgba(153, 102, 255, 0.5)',
+        "Private Internet Access": 'rgba(49,241,6,0.5)',
+        "KasperskyVPN": 'rgba(136,135,135,0.5)',
+        "Mullvad": 'rgba(255, 159, 64, 0.5)',
+        "IVPN": 'rgba(244,125,151,0.5)',
+    };
+
+    const serverBackgroundColors = providersServers.map(provider => serverColors[provider] || 'rgba(200, 200, 200, 0.5)');
+    const serverBorderColors = serverBackgroundColors.map(color => color.replace('0.5', '1'));
+
+    new Chart(serverCtx, {
+        type: 'doughnut',
+        data: {
+            labels: providersServers,
+            datasets: [{
+                label: 'Number of servers',
+                data: serverCountsPerProvider,
+                backgroundColor: serverBackgroundColors,
+                borderColor: serverBorderColors,
+                borderWidth: 1,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+        }
+    });
+
+// Line Chart - Total Entries in Last 3 Months
+const monthCtx = document.getElementById('entriesPerMonthChart').getContext('2d');
+new Chart(monthCtx, {
+    type: 'line',
+    data: {
+        labels: months,
+        datasets: [
+            {
+                label: 'Entries on last 3 months',
+                data: entriesCountPer3m,
+                fill: false,
+                borderColor: 'rgba(241,59,3)',
+                borderDash: [5, 5],
+                tension: 0.1,
+                borderWidth: 2
+            },
+            {
+                label: 'Total Entries',
+                data: Array(entriesCountPer3m.length).fill(totalEntries),
+                fill: false,
+                borderColor: 'rgba(136,135,135,0.5)',
+                tension: 0.1,
+                borderWidth: 2
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+</script>
+</body>
+</html>

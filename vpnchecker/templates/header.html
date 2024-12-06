@@ -1,0 +1,32 @@
+{% load static %}
+<header class="w3-container w3-light-grey w3-center" style="padding:64px 16px">
+  <a href="/"><img src="{% static 'seculabs-logo.png' %}" alt="Seculabs Logo" style="margin-bottom: 30px"></a>
+<div class="d-flex justify-content-center align-items-center vh-100">
+    <form method="post" class="text-center">
+        {% csrf_token %}
+        <div class="d-flex justify-content-center mb-3 gap-2">
+            <div>
+                {{ form.ip_addr.label_tag }}
+                {{ form.ip_addr }}
+                {% if form.ip_addr.errors %}
+                    <div class="text-danger">
+                        {{ form.ip_addr.errors }}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="ml-3">
+                {{ form.datetime.label_tag }}
+                {{ form.datetime }}
+                {% if form.datetime.errors %}
+                    <div class="text-danger">
+                        {{ form.datetime.errors }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <div>
+            <input type="submit" value="Lookup" class="btn btn-greylab">
+        </div>
+    </form>
+</div>
+</header>

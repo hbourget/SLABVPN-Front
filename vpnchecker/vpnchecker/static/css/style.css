@@ -1,0 +1,37 @@
+
+.card-body {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+h1 { font-size: 2em; }
+h2 { font-size: 1.6em; }
+h3 { font-size: 1.4em; }
+h1,h2,h3 {vertical-align:middle;}
+
+h1>.badge, h2>.badge, h3>.badge {
+    vertical-align:middle;
+    margin-top: -0.2em;
+}
+
+.chart-container {
+    width: 450px; /* Set desired width */
+    height: 400px; /* Set desired height */
+    margin: auto; /* Center the charts */
+    padding: 10px;
+}
+.chart-row {
+    display: flex;
+    justify-content: center; /* Center the row horizontally */
+    gap: 20px; /* Add space between charts */
+    flex-wrap: wrap; /* Wrap to next row if needed */
+    margin-top: 60px;
+}
+
+.btn-greylab {
+    color: #fff;
+    background-color: #6C8490;
+    border-color: #6C8490;
+}
+.orange-lab {
+    color: rgb(231,64,17);
+}
