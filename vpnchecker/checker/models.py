@@ -61,6 +61,7 @@ class Provider(models.Model):
 
     class Meta:
         managed = False
+        db_table = 'providers'
 
 
 class Server(models.Model):
@@ -88,6 +89,7 @@ class Server(models.Model):
 
     class Meta:
         managed = False
+        db_table = 'servers'
 
 
 class Country(models.Model):
@@ -101,6 +103,7 @@ class Country(models.Model):
 
     class Meta:
         managed = False
+        db_table = 'countries'
 
 
 class City(models.Model):
@@ -115,6 +118,7 @@ class City(models.Model):
 
     class Meta:
         managed = False
+        db_table = 'cities'
 
 
 class InIp(models.Model):
@@ -126,6 +130,10 @@ class InIp(models.Model):
 
     def __str__(self):
         return self.ip
+
+    class Meta:
+        managed = False
+        db_table = 'in_ips'
 
     @classmethod
     def get_filtered_records(cls, ip_address, date_since):
@@ -144,6 +152,10 @@ class OutIp(models.Model):
 
     def __str__(self):
         return self.ip
+
+    class Meta:
+        managed = False
+        db_table = 'out_ips'
 
     @classmethod
     def get_filtered_records(cls, ip_address, date_since):
@@ -167,6 +179,3 @@ class OutIp(models.Model):
             .annotate(count=Count("id"))
             .order_by("month")
         )
-
-    class Meta:
-        managed = False
