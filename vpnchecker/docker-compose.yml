@@ -2,6 +2,7 @@ services:
   web:
     env_file:
       - web.env
+      - db.env
     build: .
     command: python /code/manage.py runserver 0.0.0.0:8000
     volumes:
@@ -12,10 +13,21 @@ services:
       - db
   db:
     image: postgres:14
+    env_file:
+      - db.env
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-    environment:
-      - "POSTGRES_HOST_AUTH_METHOD=trust"
+  pgadmin:
+    image: dpage/pgadmin4
+    env_file:
+      - db.env
+    container_name: pgadmin4_container
+    restart: always
+    ports:
+      - "8888:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
 
 volumes:
   postgres_data:
+  pgadmin-data:
