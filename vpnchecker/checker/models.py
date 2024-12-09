@@ -60,7 +60,7 @@ class Provider(models.Model):
         )
 
     class Meta:
-        managed = False
+        #managed = False
         db_table = 'providers'
 
 
@@ -88,7 +88,7 @@ class Server(models.Model):
         return self.name
 
     class Meta:
-        managed = False
+        #managed = False
         db_table = 'servers'
 
 
@@ -102,7 +102,7 @@ class Country(models.Model):
         return self.name
 
     class Meta:
-        managed = False
+        #managed = False
         db_table = 'countries'
 
 
@@ -117,7 +117,7 @@ class City(models.Model):
         return self.name
 
     class Meta:
-        managed = False
+        #managed = False
         db_table = 'cities'
 
 
@@ -132,7 +132,7 @@ class InIp(models.Model):
         return self.ip
 
     class Meta:
-        managed = False
+        #managed = False
         db_table = 'in_ips'
 
     @classmethod
@@ -154,7 +154,7 @@ class OutIp(models.Model):
         return self.ip
 
     class Meta:
-        managed = False
+        #managed = False
         db_table = 'out_ips'
 
     @classmethod
