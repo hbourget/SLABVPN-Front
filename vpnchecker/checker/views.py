@@ -1,7 +1,58 @@
 from django.shortcuts import render
 from .forms import LookupForm
-from .models import OutIp, InIp, City, Country, Provider
+from .models import City, Country
 import json
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Provider, InIp, OutIp
+from .serializers import InIpSerializer, OutIpSerializer
+
+
+class ProviderCountriesView(APIView):
+    def get(self, request, months=3):
+        data = Provider.get_countries_per_provider(months)
+        if not data:
+            return Response({'error': 'No data found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response(data, status=status.HTTP_200_OK)
+
+
+class ProviderServersView(APIView):
+    def get(self, request, months=3):
+        data = Provider.get_servers_per_provider(months)
+        if not data:
+            return Response({'error': 'No data found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response(data, status=status.HTTP_200_OK)
+
+
+class InIpFilteredView(APIView):
+    def get(self, request):
+        ip_address = request.query_params.get('ip', None)
+        date_since = request.query_params.get('date_since', None)
+        if not ip_address or not date_since:
+            return Response({'error': 'ip and date_since parameters are required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        records = InIp.get_filtered_records(ip_address, date_since)
+        serializer = InIpSerializer(records, many=True)
+        if not serializer.data:
+            return Response({'error': 'No data found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class OutIpFilteredView(APIView):
+    def get(self, request):
+        ip_address = request.query_params.get('ip', None)
+        date_since = request.query_params.get('date_since', None)
+        if not ip_address or not date_since:
+            return Response({'error': 'ip and date_since parameters are required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        records = OutIp.get_filtered_records(ip_address, date_since)
+        serializer = OutIpSerializer(records, many=True)
+        if not serializer.data:
+            return Response({'error': 'No data found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 def extract_ip_details(ip_instance):
     if not ip_instance:

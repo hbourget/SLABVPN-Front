@@ -35,6 +35,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'checker.apps.CheckerConfig',
     "django_read_only",
+    "rest_framework",
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
 ]
 
 MIDDLEWARE = [
