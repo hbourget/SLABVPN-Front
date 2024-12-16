@@ -94,7 +94,7 @@
                     <tr>
                         <td>{{ out_ip.server.name }}</td>
                         <td>{{ out_ip.server.provider.name }}</td>
-                        <td>{{ out_ip.server.city.name }}, {{ out_ip.server.city.country.name }}</td>
+                        <td>{{ out_ip.server.location.name }}, {{ out_ip.server.location.country }}</td>
                         <td>{{ out_ip.created_at }}</td>
                     </tr>
                     {% endfor %}
@@ -102,7 +102,7 @@
                     <tr>
                         <td>{{ in_ip.server.name }}</td>
                         <td>{{ in_ip.server.provider.name }}</td>
-                        <td>{{ in_ip.server.city.name }}, {{ in_ip.server.city.country.name }}</td>
+                        <td>{{ in_ip.server.location.name }}, {{ in_ip.server.location.country }}</td>
                         <td>{{ in_ip.created_at }}</td>
                     </tr>
                     {% endfor %}

@@ -14,51 +14,6 @@ class Provider(models.Model):
     def __str__(self):
         return self.name
 
-    @classmethod
-    def get_countries_per_provider(cls, months=3):
-        time_period = now() - timedelta(days=months * 30)
-
-        # Get all servers referencing a country or city linked to a country
-        servers_to_countries = cls.objects.annotate(
-            country_count=Count(
-                'servers__id',
-                filter=Q(
-                    servers__location_type='Country'
-                ) | Q(
-                    servers__location_type='City',
-                    servers__location_id__in=Subquery(
-                        City.objects.filter(
-                            id=OuterRef('servers__location_id'),
-                            country__isnull=False
-                        ).values('id')
-                    )
-                ),
-                distinct=True
-            )
-        ).filter(
-            servers__created_at__gte=time_period
-        )
-
-        return (
-            servers_to_countries.values('id', 'name', 'country_count')
-            .order_by('-country_count')
-        )
-
-    @classmethod
-    def get_servers_per_provider(cls, months=3):
-        time_period = now() - timedelta(days=months * 30)
-
-        return (
-            cls.objects.annotate(
-                server_count=Count('servers')
-            )
-            .filter(
-                servers__created_at__gte=time_period
-            )
-            .values('id', 'name', 'server_count')
-            .order_by('-server_count')
-        )
-
     class Meta:
         #managed = False
         db_table = 'providers'
@@ -83,6 +38,32 @@ class Server(models.Model):
         elif self.location_type == 'Country':
             return Country.objects.filter(id=self.location_id).first()
         return None
+
+    @classmethod
+    def get_servers_per_provider(cls, months=3):
+        time_period = now() - timedelta(days=months * 30)
+
+        return (
+            cls.objects
+            .filter(created_at__gte=time_period)
+            .values('provider__id', 'provider__name')
+            .annotate(server_count=Count('id'))
+            .order_by('-server_count')
+        )
+
+    @classmethod
+    def get_number_of_countries_per_provider(cls, months=3):
+        time_period = now() - timedelta(days=months * 30)
+
+        return (
+            cls.objects
+            .filter(created_at__gte=time_period)
+            .values('provider__id', 'provider__name')
+            .annotate(
+                country_count=Count('location_id', distinct=True, filter=Q(location_type='Country'))
+            )
+            .order_by('-country_count')
+        )
 
     def __str__(self):
         return self.name

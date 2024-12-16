@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from .forms import LookupForm
-from .models import City, Country
+from .models import City, Country, Server
 import json
 
 from rest_framework.views import APIView
@@ -12,7 +12,7 @@ from .serializers import InIpSerializer, OutIpSerializer
 
 class ProviderCountriesView(APIView):
     def get(self, request, months=3):
-        data = Provider.get_countries_per_provider(months)
+        data = Server.get_number_of_countries_per_provider(months)
         if not data:
             return Response({'error': 'No data found'}, status=status.HTTP_404_NOT_FOUND)
         return Response(data, status=status.HTTP_200_OK)
@@ -20,7 +20,7 @@ class ProviderCountriesView(APIView):
 
 class ProviderServersView(APIView):
     def get(self, request, months=3):
-        data = Provider.get_servers_per_provider(months)
+        data = Server.get_servers_per_provider(months)
         if not data:
             return Response({'error': 'No data found'}, status=status.HTTP_404_NOT_FOUND)
         return Response(data, status=status.HTTP_200_OK)
@@ -127,12 +127,12 @@ def index(request):
         form = LookupForm()
         total_entries = OutIp.get_total_entries()
 
-        countries_per_provider = list(Provider.get_countries_per_provider())
-        providers_countries = [entry['name'] for entry in countries_per_provider]
+        countries_per_provider = list(Server.get_number_of_countries_per_provider())
+        providers_countries = [entry['provider__name'] for entry in countries_per_provider]
         country_counts_per_provider = [entry['country_count'] for entry in countries_per_provider]
 
-        servers_per_provider = list(Provider.get_servers_per_provider())
-        servers_providers = [entry['name'] for entry in servers_per_provider]
+        servers_per_provider = list(Server.get_servers_per_provider())
+        servers_providers = [entry['provider__name'] for entry in servers_per_provider]
         server_counts_per_provider = [entry['server_count'] for entry in servers_per_provider]
 
         entries_per_3_month = list(OutIp.get_entries_per_month(3))
