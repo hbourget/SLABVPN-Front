@@ -4,7 +4,10 @@ services:
       - web.env
       - db.env
     build: .
-    command: python /code/manage.py runserver 0.0.0.0:8000
+    command: >
+      sh -c "python /code/manage.py makemigrations &&
+             python /code/manage.py migrate &&
+             python /code/manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/code
     ports:
