@@ -75,7 +75,6 @@ def extract_ip_details(ip_instance):
 
     return provider, country, city, server_name, created_at
 
-
 def index(request):
     if request.method == "POST":
         vpn_status, provider, country, city, server, created_at, is_outbound, date_since, total_count = (

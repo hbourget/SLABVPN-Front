@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import Count, Subquery, OuterRef, Q
+from django.db.models import Count, Subquery, OuterRef, Q, Case, When, F
 from django.db.models.functions import TruncMonth
 from django.utils.timezone import now
 from datetime import timedelta
@@ -55,14 +55,27 @@ class Server(models.Model):
     def get_number_of_countries_per_provider(cls, months=3):
         time_period = now() - timedelta(days=months * 30)
 
+        # Subquery to get the country ID when location_type is 'City'
+        city_country_subquery = City.objects.filter(
+            id=OuterRef('location_id')
+        ).values('country__id')[:1]
+
         return (
             cls.objects
             .filter(created_at__gte=time_period)
+            .annotate(
+                country_id=Case(
+                    When(location_type='Country', then=F('location_id')),  # Direct country reference
+                    When(location_type='City', then=Subquery(city_country_subquery)),  # Resolve country via city
+                    default=None,
+                    output_field=models.UUIDField()
+                )
+            )
             .values('provider__id', 'provider__name')
             .annotate(
-                country_count=Count('location_id', distinct=True, filter=Q(location_type='Country'))
+                unique_countries=Count('country_id', distinct=True)  # Count unique countries
             )
-            .order_by('-country_count')
+            .order_by('-unique_countries')
         )
 
     def __str__(self):
