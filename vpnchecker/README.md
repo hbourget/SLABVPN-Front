@@ -15,6 +15,10 @@ localhost:8000
 - **Réponse**:
   - **200 OK** : Une liste des fournisseurs avec le nombre de pays auxquels ils sont associés pendant les derniers `months` mois.
   - **404 Not Found** : Si aucune donnée n'est trouvée.
+  - **Exemple de requête**:
+    ```
+    /api/providers/countries/?months=3
+    ```
   - **Exemple de réponse**:
     ```json
     [
@@ -37,6 +41,10 @@ localhost:8000
 - **Réponse**:
   - **200 OK** : Une liste des fournisseurs avec le nombre de serveurs auxquels ils sont associés pendant les derniers `months` mois.
   - **404 Not Found** : Si aucune donnée n'est trouvée.
+  - **Exemple de requête**:
+    ```
+    /api/providers/servers/?months=3
+    ```
   - **Exemple de réponse**:
     ```json
     [
