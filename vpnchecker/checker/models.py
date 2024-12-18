@@ -73,9 +73,9 @@ class Server(models.Model):
             )
             .values('provider__id', 'provider__name')
             .annotate(
-                unique_countries=Count('country_id', distinct=True)  # Count unique countries
+                country_count=Count('country_id', distinct=True)  # Count unique countries
             )
-            .order_by('-unique_countries')
+            .order_by('-country_count')
         )
 
     def __str__(self):
