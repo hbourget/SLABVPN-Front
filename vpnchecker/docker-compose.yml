@@ -30,7 +30,6 @@ services:
     image: dpage/pgadmin4:latest
     env_file:
       - db.env
-    container_name: pgadmin4_container
     restart: always
     ports:
       - "8888:80"
@@ -39,7 +38,6 @@ services:
 
   prometheus:
     image: prom/prometheus:latest
-    container_name: prometheus
     ports:
       - "9090:9090"
     volumes:
