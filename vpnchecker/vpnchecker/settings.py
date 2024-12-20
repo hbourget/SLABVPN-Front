@@ -62,13 +62,23 @@ WSGI_APPLICATION = 'vpnchecker.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get("POSTGRES_DB"),
-        'USER': os.environ.get("POSTGRES_USER"),
-        'PASSWORD': os.environ.get("POSTGRES_PASSWORD"),
-        'HOST': os.environ.get("POSTGRES_HOST"),
-        'PORT': os.environ.get("POSTGRES_PORT"),
-    }
+        'NAME': os.environ.get("DJANGO_POSTGRES_DB"),
+        'USER': os.environ.get("DJANGO_POSTGRES_USER"),
+        'PASSWORD': os.environ.get("DJANGO_POSTGRES_PASSWORD"),
+        'HOST': os.environ.get("DJANGO_POSTGRES_HOST"),
+        'PORT': os.environ.get("DJANGO_POSTGRES_PORT"),
+    },
+    'vpn_db': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get("VPN_POSTGRES_DB"),
+        'USER': os.environ.get("VPN_POSTGRES_USER"),
+        'PASSWORD': os.environ.get("VPN_POSTGRES_PASSWORD"),
+        'HOST': os.environ.get("VPN_POSTGRES_HOST"),
+        'PORT': os.environ.get("VPN_POSTGRES_PORT"),
+    },
 }
+
+DATABASE_ROUTERS = ['vpnchecker.db_router.VPNRouter']
 
 
 
