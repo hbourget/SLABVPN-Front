@@ -48,7 +48,6 @@ services:
 
   postgres_exporter:
     image: wrouesnel/postgres_exporter:latest
-    container_name: postgres_exporter
     env_file:
       - db.env
     ports:
