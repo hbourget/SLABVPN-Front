@@ -21,6 +21,6 @@ from django.contrib import admin
 from django.urls import include, path
 
 urlpatterns = [
-    path("", include("checker.urls")),
+    path("", include("slabvpn_django.urls")),
     path("", include('django_prometheus.urls')),
 ]

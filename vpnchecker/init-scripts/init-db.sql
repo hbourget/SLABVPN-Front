@@ -1,5 +1,6 @@
 -- Create the slabvpn_data database
 CREATE DATABASE slabvpn_data;
+CREATE DATABASE slabvpn_django;
 
 -- Connect to the slabvpn_data database
 \c slabvpn_data;
@@ -62,11 +63,26 @@ CREATE TABLE out_ips (
     CONSTRAINT fk_servers_out_ip FOREIGN KEY (server_id) REFERENCES servers (id)
 );
 
--- Create user slabvpn with read permissions
-CREATE USER slabvpn WITH PASSWORD '';
-GRANT CONNECT ON DATABASE slabvpn_data TO slabvpn;
-GRANT USAGE ON SCHEMA public TO slabvpn;
-GRANT SELECT ON ALL TABLES IN SCHEMA public TO slabvpn;
+CREATE USER slabber_data WITH PASSWORD 'PUTPWDHERE';
+GRANT CONNECT ON DATABASE slabvpn_data TO slabber_data;
+REVOKE CONNECT ON DATABASE slabvpn_django FROM slabber_data;
+GRANT USAGE ON SCHEMA public TO slabber_data;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO slabber_data;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO slabber_data;
 
--- Ensure future tables grant SELECT to slabvpn
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO slabvpn;
+
+CREATE USER slabber_django WITH PASSWORD 'PUTPWDHERE';
+ALTER DATABASE slabvpn_django OWNER TO slabber_django;
+REVOKE CONNECT ON DATABASE slabvpn_data FROM slabber_django;
+GRANT ALL PRIVILEGES ON DATABASE slabvpn_django TO slabber_django;
+
+GRANT ALL ON SCHEMA public TO slabber_django;
+GRANT CREATE ON SCHEMA public TO slabber_django;
+
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO slabber_django;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO slabber_django;
+GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public TO slabber_django;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL PRIVILEGES ON TABLES TO slabber_django;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL PRIVILEGES ON SEQUENCES TO slabber_django;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL PRIVILEGES ON FUNCTIONS TO slabber_django;

@@ -21,7 +21,7 @@ ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
 INSTALLED_APPS = [
     'django.contrib.staticfiles',
-    'checker.apps.CheckerConfig',
+    'slabvpn_django.apps.CheckerConfig',
     "rest_framework",
     'django.contrib.auth',
     'django.contrib.contenttypes',
