@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:14
+    image: postgres:14-alpine
     env_file:
       - db.env
     volumes:
@@ -21,7 +21,7 @@ services:
     depends_on:
       - db
   pgadmin:
-    image: dpage/pgadmin4
+    image: dpage/pgadmin4:latest
     env_file:
       - db.env
     container_name: pgadmin4_container
