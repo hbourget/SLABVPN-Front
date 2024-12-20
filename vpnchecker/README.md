@@ -1,19 +1,34 @@
-# Variables d'environnement
+# Installation
 
+
+
+# Variables d'environnement
+```
+db.env
+```
 - DJANGO_POSTGRES_DB
 - DJANGO_POSTGRES_USER
 - DJANGO_POSTGRES_PASSWORD
 - DJANGO_POSTGRES_HOST
 - DJANGO_POSTGRES_PORT
-
+---
 - VPN_POSTGRES_DB
 - VPN_POSTGRES_USER
 - VPN_POSTGRES_PASSWORD
 - VPN_POSTGRES_HOST
 - VPN_POSTGRES_PORT
-
+---
 - PGADMIN_DEFAULT_EMAIL
 - PGADMIN_DEFAULT_PASSWORD
+
+```
+web.env
+```
+- SECRET_KEY
+- DEBUG #1 or 0
+- DJANGO_ALLOWED_HOSTS #separated by single space
+- GF_SECURITY_ADMIN_PASSWORD
+
 
 # API
 
