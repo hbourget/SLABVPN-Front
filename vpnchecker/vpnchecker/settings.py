@@ -26,15 +26,18 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    "django_prometheus",
 ]
 
 MIDDLEWARE = [
+    "django_prometheus.middleware.PrometheusBeforeMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django_prometheus.middleware.PrometheusAfterMiddleware",
 ]
 
 ROOT_URLCONF = 'vpnchecker.urls'
@@ -61,7 +64,7 @@ WSGI_APPLICATION = 'vpnchecker.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django_prometheus.db.backends.postgresql',
         'NAME': os.environ.get("DJANGO_POSTGRES_DB"),
         'USER': os.environ.get("DJANGO_POSTGRES_USER"),
         'PASSWORD': os.environ.get("DJANGO_POSTGRES_PASSWORD"),
@@ -69,7 +72,7 @@ DATABASES = {
         'PORT': os.environ.get("DJANGO_POSTGRES_PORT"),
     },
     'vpn_db': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django_prometheus.db.backends.postgresql',
         'NAME': os.environ.get("VPN_POSTGRES_DB"),
         'USER': os.environ.get("VPN_POSTGRES_USER"),
         'PASSWORD': os.environ.get("VPN_POSTGRES_PASSWORD"),

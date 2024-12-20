@@ -22,4 +22,5 @@ from django.urls import include, path
 
 urlpatterns = [
     path("", include("checker.urls")),
+    path("", include('django_prometheus.urls')),
 ]
