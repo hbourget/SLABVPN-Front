@@ -1,5 +1,5 @@
 """
-URL configuration for vpnchecker project.
+URL configuration for core project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.1/topics/http/urls/
@@ -21,6 +21,6 @@ from django.contrib import admin
 from django.urls import include, path
 
 urlpatterns = [
-    path("", include("slabvpn_django.urls")),
+    path("", include("slabvpn_app.urls")),
     path("", include('django_prometheus.urls')),
 ]

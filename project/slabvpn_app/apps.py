@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class CheckerConfig(AppConfig):
+class SlabvpnAppConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'slabvpn_django'
+    name = 'slabvpn_app'
