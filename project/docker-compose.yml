@@ -6,6 +6,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
       - ./init-scripts:/docker-entrypoint-initdb.d/
+
   web:
     env_file:
       - web.env

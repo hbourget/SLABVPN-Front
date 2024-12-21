@@ -72,13 +72,13 @@ DATABASES = {
         'HOST': os.environ.get("DJANGO_POSTGRES_HOST"),
         'PORT': os.environ.get("DJANGO_POSTGRES_PORT"),
     },
-    'vpn_db': {
+    'data_db': {
         'ENGINE': 'django_prometheus.db.backends.postgresql',
-        'NAME': os.environ.get("VPN_POSTGRES_DB"),
-        'USER': os.environ.get("VPN_POSTGRES_USER"),
-        'PASSWORD': os.environ.get("VPN_POSTGRES_PASSWORD"),
-        'HOST': os.environ.get("VPN_POSTGRES_HOST"),
-        'PORT': os.environ.get("VPN_POSTGRES_PORT"),
+        'NAME': os.environ.get("DATA_POSTGRES_DB"),
+        'USER': os.environ.get("DATA_POSTGRES_USER"),
+        'PASSWORD': os.environ.get("DATA_POSTGRES_PASSWORD"),
+        'HOST': os.environ.get("DATA_POSTGRES_HOST"),
+        'PORT': os.environ.get("DATA_POSTGRES_PORT"),
     },
 }
 
