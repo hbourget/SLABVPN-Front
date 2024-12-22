@@ -1,5 +1,10 @@
-from django.shortcuts import render
-from .forms import LookupForm
+from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import AuthenticationForm
+from django.shortcuts import render, redirect
+from rest_framework.permissions import IsAuthenticated
+
+from .forms import LookupForm, RegisterForm
 from .models import City, Country, Server
 import json
 
@@ -11,6 +16,8 @@ from .serializers import InIpSerializer, OutIpSerializer
 
 
 class ProviderCountriesView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request, months=3):
         data = Server.get_number_of_countries_per_provider(months)
         if not data:
@@ -19,6 +26,8 @@ class ProviderCountriesView(APIView):
 
 
 class ProviderServersView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request, months=3):
         data = Server.get_servers_per_provider(months)
         if not data:
@@ -27,6 +36,8 @@ class ProviderServersView(APIView):
 
 
 class InIpFilteredView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         ip_address = request.query_params.get('ip', None)
         date_since = request.query_params.get('date_since', None)
@@ -41,6 +52,8 @@ class InIpFilteredView(APIView):
 
 
 class OutIpFilteredView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         ip_address = request.query_params.get('ip', None)
         date_since = request.query_params.get('date_since', None)
@@ -52,7 +65,6 @@ class OutIpFilteredView(APIView):
         if not serializer.data:
             return Response({'error': 'No data found'}, status=status.HTTP_404_NOT_FOUND)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
 
 def extract_ip_details(ip_instance):
     if not ip_instance:
@@ -75,6 +87,7 @@ def extract_ip_details(ip_instance):
 
     return provider, country, city, server_name, created_at
 
+@login_required(login_url='/login/')
 def index(request):
     if request.method == "POST":
         vpn_status, provider, country, city, server, created_at, is_outbound, date_since, total_count = (
@@ -148,3 +161,26 @@ def index(request):
             "server_counts_per_provider": json.dumps(server_counts_per_provider),
             "total_entries": total_entries,
         })
+
+def register_view(request):
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)  # Automatically log in the user
+            return redirect('index')  # Redirect to a home or dashboard page
+    else:
+        form = RegisterForm()
+    return render(request, 'register.html', {'form': form})
+
+
+def login_view(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            return redirect('index')  # Redirect to a home or dashboard page
+    else:
+        form = AuthenticationForm()
+    return render(request, 'login.html', {'form': form})

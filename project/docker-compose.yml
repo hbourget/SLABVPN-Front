@@ -2,10 +2,13 @@ version: "3.9"
 
 networks:
   db_net:
+    name: backend_net
     driver: bridge
   monitoring_net:
+    name: monitoring_net
     driver: bridge
   frontend_net:
+    name: frontend_net
     driver: bridge
 
 volumes:
@@ -25,7 +28,7 @@ services:
     networks:
       - db_net
 
-  web:
+  django:
     build: .
     env_file:
       - web.env
@@ -38,16 +41,19 @@ services:
       - .:/code
     expose:
       - 8000
+    ports:
+      - "8000:8000"
     depends_on:
       - db
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.django.rule=Host(`django.localhost`)"
+      - "traefik.http.routers.django.entrypoints=web"
       - "traefik.http.services.django.loadbalancer.server.port=8000"
-      - "traefik.docker.network=frontend"
+      - "traefik.docker.network=frontend_net"
     networks:
-      - db_net
       - frontend_net
+      - db_net
       - monitoring_net
 
   pgadmin:
@@ -73,7 +79,7 @@ services:
       - prometheus-data:/prometheus
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     depends_on:
-      - web
+      - django
     networks:
       - monitoring_net
 
