@@ -48,13 +48,13 @@ Voici la traduction en français des descriptions :
 
 ### Configuration Web (`web.env`)
 
-| Variable                     | Description                                    |
-|------------------------------|------------------------------------------------|
-| `SECRET_KEY`                 | Clé secrète de Django                         |
-| `DEBUG`                      | Activer le mode debug (1 pour vrai, 0 pour faux)|
-| `DJANGO_ALLOWED_HOSTS`       | Hôtes autorisés (séparés par un espace simple) |
-| `GF_SECURITY_ADMIN_PASSWORD` | Mot de passe administrateur pour Grafana      |
-| `JWT_SECRET_KEY`             | Clé secrète pour générer les tokens JWT       | 
+| Variable                     | Description                                       |
+|------------------------------|---------------------------------------------------|
+| `SECRET_KEY`                 | Clé secrète de Django                             |
+| `DEBUG`                      | Activer le mode debug (1 pour True, 0 pour False) |
+| `DJANGO_ALLOWED_HOSTS`       | Hôtes autorisés (séparés par un espace simple)    |
+| `GF_SECURITY_ADMIN_PASSWORD` | Mot de passe administrateur pour Grafana          |
+| `JWT_SECRET_KEY`             | Clé secrète pour générer les tokens JWT           | 
 
 
 
