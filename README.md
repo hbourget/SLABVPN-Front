@@ -1,44 +1,83 @@
+# Intro
+
+Ce répo présente la partie Frontend du projet `SLAB-VPN`, qui fournit des informations sur les enregistrements d'IPs entrantes et sortantes des principaux providers VPN.
+Les données sont récupérées depuis une base de données PostgreSQL et sont présentés sur l'application Django. Une API est également disponible.
+La base PostgreSQL est alimenté par la partie Backend du projet.
+
+Les différents services :
+
+- `Traefik` : Reverse proxy pour les services web.
+- `Django` : Application web
+- `PostgreSQL` : Base de données qui récupère les données VPN et stocke le business Django.
+- `PgAdmin` : Interface Web pour gérer la base de données.
+- `Prometheus` : Système de collection de metrics.
+- `Postgres Exporter` : Exportateur de metrics pour PostgreSQL.
+- `Grafana` : Outil de visualisation de données.
+
+![alt text](archi.png)
+
 # Installation
 
+- Créer les fichiers `db.env` et `web.env` à la racine du projet et ajoutez les variables d'environnement correspondantes (ci-dessous).
+- Ajouter les mots de passes des 2 users postgres dans le script `init-db.sql` dans le dossier `init-scripts`.
+- Exécuter `docker-compose up --build` pour démarrer les services.
+
+## Variables d'environnement
+
+### Database Configuration (`db.env`)
+Voici la traduction en français des descriptions :
+
+| Variable                   | Description                                                                                     |
+|----------------------------|-------------------------------------------------------------------------------------------------|
+| `DJANGO_POSTGRES_DB`       | Nom de la base de données pour les données liées à Django                                      |
+| `DJANGO_POSTGRES_USER`     | Utilisateur Postgres pour la base de données Django                                            |
+| `DJANGO_POSTGRES_PASSWORD` | Mot de passe pour l'utilisateur de la base de données Django                                   |
+| `DJANGO_POSTGRES_HOST`     | Hôte pour la base de données Django                                                            |
+| `DJANGO_POSTGRES_PORT`     | Port pour la base de données Django                                                            |
+| ---                        | ---                                                                                             |
+| `DATA_POSTGRES_DB`         | Nom de la base de données pour VPN                                                             |
+| `DATA_POSTGRES_USER`       | Utilisateur pour la base de données VPN                                                        |
+| `DATA_POSTGRES_PASSWORD`   | Mot de passe pour l'utilisateur de la base de données VPN                                      |
+| `DATA_POSTGRES_HOST`       | Hôte pour la base de données VPN                                                               |
+| `DATA_POSTGRES_PORT`       | Port pour la base de données VPN                                                               |
+| ---                        | ---                                                                                             |
+| `PGADMIN_DEFAULT_EMAIL`    | Email par défaut pour PgAdmin                                                                  |
+| `PGADMIN_DEFAULT_PASSWORD` | Mot de passe par défaut pour PgAdmin                                                           |
+| ---                        | ---                                                                                             |
+| `DATA_SOURCE_NAME`         | URL de connexion : postgres://<nom_utilisateur>:<mot_de_passe>@<nom_service_bdd>:5432/<nom_bdd>?sslmode=disable |
+
+### Configuration Web (`web.env`)
+
+| Variable                     | Description                                    |
+|------------------------------|------------------------------------------------|
+| `SECRET_KEY`                 | Clé secrète de Django                         |
+| `DEBUG`                      | Activer le mode debug (1 pour vrai, 0 pour faux)|
+| `DJANGO_ALLOWED_HOSTS`       | Hôtes autorisés (séparés par un espace simple) |
+| `GF_SECURITY_ADMIN_PASSWORD` | Mot de passe administrateur pour Grafana      |
+| `JWT_SECRET_KEY`             | Clé secrète pour générer les tokens JWT       | 
 
 
-# Variables d'environnement
-```
-db.env
-```
-- DJANGO_POSTGRES_DB
-- DJANGO_POSTGRES_USER
-- DJANGO_POSTGRES_PASSWORD
-- DJANGO_POSTGRES_HOST
-- DJANGO_POSTGRES_PORT
+
+# Endpoints API
+
 ---
-- VPN_POSTGRES_DB
-- VPN_POSTGRES_USER
-- VPN_POSTGRES_PASSWORD
-- VPN_POSTGRES_HOST
-- VPN_POSTGRES_PORT
+
+### 0. **Obtenir un token JWT**
+
+- **URL**: `/api/token/`
+- **Méthode**: `POST`
+- **Paramètres de requête**:
+  - `username` (obligatoire) : Le nom d'utilisateur de l'utilisateur.
+  - `password` (obligatoire) : Le mot de passe de l'utilisateur.
+- **Réponse**:
+  - **200 OK** : Un token d'authentification pour l'utilisateur.
+  - **401 Unauthorized** : Si les informations d'identification fournies sont incorrectes.
+  -  Exemple de requête:
+    ```
+    /api/token/
+    ```
+  
 ---
-- PGADMIN_DEFAULT_EMAIL
-- PGADMIN_DEFAULT_PASSWORD
-
-```
-web.env
-```
-- SECRET_KEY
-- DEBUG #1 or 0
-- DJANGO_ALLOWED_HOSTS #separated by single space
-- GF_SECURITY_ADMIN_PASSWORD
-
-
-# API
-
-## URL de base
-
-```
-localhost:8000
-```
-
-## Endpoints
 
 ### 1. **Obtenir le nombre de pays uniques par fournisseurs**
 
