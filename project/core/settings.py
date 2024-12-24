@@ -101,7 +101,7 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': False,
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': JWT_SECRET_KEY,
-    'VERIFYING_KEY': None,  # For asymmetric algorithms (e.g., RS256), set the public key here
+    'VERIFYING_KEY': None,  # For asymmetric algorithms (e.g., RS256), set public key here
     'AUTH_HEADER_TYPES': ('Bearer',),
     'USER_ID_FIELD': 'id',
     'USER_ID_CLAIM': 'user_id',
