@@ -4,22 +4,22 @@ Ce répo présente la partie Frontend du projet `SLAB-VPN`, qui fournit des info
 Les données sont récupérées depuis une base de données PostgreSQL et sont présentés sur l'application Django. Une API est également disponible.
 La base PostgreSQL est alimenté par la partie Backend du projet.
 
-Les différents services :
+Les services :
 
 - `Traefik` : Reverse proxy pour les services web.
 - `Django` : Application web
 - `PostgreSQL` : Base de données qui récupère les données VPN et stocke le business Django.
-- `PgAdmin` : Interface Web pour gérer la base de données.
-- `Prometheus` : Système de collection de metrics.
+- `PgAdmin` : Interface web pour gérer la base de données.
+- `Prometheus` : Collection de metrics.
 - `Postgres Exporter` : Exportateur de metrics pour PostgreSQL.
-- `Grafana` : Outil de visualisation de données.
+- `Grafana` : Outil de visualisation pour les metrics.
 
 ![alt text](archi.png)
 
 # Installation
 
-- Créer les fichiers `db.env` et `web.env` à la racine du projet et ajoutez les variables d'environnement correspondantes (ci-dessous).
-- Ajouter les mots de passes des 2 users postgres dans le script `init-db.sql` dans le dossier `init-scripts`.
+- Créer les fichiers `db.env` et `web.env` à la racine du projet et ajouter les variables d'environnement correspondantes (ci-dessous).
+- Ajouter les mots de passes des 2 users postgres dans le script `init-db.sql` qui se situe dans le dossier `init-scripts`.
 - Exécuter `docker-compose up --build` pour démarrer les services.
 
 ## Variables d'environnement
