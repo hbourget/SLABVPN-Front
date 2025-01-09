@@ -11,22 +11,22 @@ networks:
     name: frontend_net
     driver: bridge
 
-volumes:
-  postgres_data:
-  pgadmin-data:
-  grafana-data:
-  prometheus-data:
-
 services:
   db:
     image: postgres:17-alpine
     env_file:
       - db.env
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - ./data/postgres_data:/var/lib/postgresql/data/
       - ./init-scripts:/docker-entrypoint-initdb.d/
     networks:
       - db_net
+    user: 1000:1000
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   django:
     build: .
@@ -39,12 +39,9 @@ services:
              gunicorn --bind 0.0.0.0:8000 core.wsgi:application"
     volumes:
       - .:/code
-    expose:
-      - 8000
-    ports:
-      - "8000:8000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.django.rule=Host(`django.localhost`)"
@@ -55,63 +52,97 @@ services:
       - frontend_net
       - db_net
       - monitoring_net
+    user: 1000:1000
+    healthcheck:
+      test: ["CMD", "python", "/usr/src/app/healthcheck.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   pgadmin:
-    image: dpage/pgadmin4:latest
+    image: dpage/pgadmin4:8.14
     env_file:
       - db.env
     restart: always
-    # If you don't want pgAdmin publicly reachable,
-    # you can just expose or remove ports entirely
-    # but here we do an example with local port:
-    ports:
-      - "5050:80"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pgadmin.rule=Host(`pgadmin.localhost`)"
+      - "traefik.http.routers.pgadmin.entrypoints=web"
+      - "traefik.http.services.pgadmin.loadbalancer.server.port=80"
+      - "traefik.docker.network=frontend_net"
     volumes:
-      - pgadmin-data:/var/lib/pgadmin
+      - ./data/pgadmin_data:/var/lib/pgadmin
     networks:
       - db_net
+      - frontend_net
+    healthcheck:
+      test: ["CMD", "wget", "-O", "-", "http://localhost:80/misc/ping"]
+      interval: 10s
+      timeout: 10s
+      start_period: 160s
+      retries: 3
 
   prometheus:
-    image: prom/prometheus:latest
-    ports:
-      - "9090:9090"
+    image: prom/prometheus:v3.1.0
     volumes:
-      - prometheus-data:/prometheus
+      - ./data/prometheus_data:/prometheus
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     depends_on:
-      - django
+      django:
+        condition: service_healthy
     networks:
       - monitoring_net
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   postgres_exporter:
     image: wrouesnel/postgres_exporter:latest
     env_file:
       - db.env
-    ports:
-      - "9187:9187"
     depends_on:
-      - db
-    # Needs access to db (backend) and also
-    # be reachable by Prometheus (monitoring)
+      db:
+        condition: service_healthy
     networks:
       - db_net
       - monitoring_net
+    user: 1000:1000
+    healthcheck:
+      test: ["CMD", "sh", "-c", "/postgres_exporter 2>&1 | grep -q 'bind: address already in use'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:11.4.0
     env_file:
       - web.env
-    ports:
-      - "3000:3000"
     volumes:
-      - grafana-data:/var/lib/grafana
+      - ./data/grafana_data:/var/lib/grafana
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`monitoring.localhost`)"
+      - "traefik.http.routers.grafana.entrypoints=web"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
     depends_on:
-      - prometheus
+      prometheus:
+        condition: service_healthy
     networks:
       - monitoring_net
+      - frontend_net
+    user: 1000:1000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   traefik:
-    image: traefik:v2.9.6
+    image: traefik:v3.2
+    command:
+      - '--ping'
     ports:
       - "80:80"
       - "8081:8080"
@@ -120,3 +151,8 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
     networks:
       - frontend_net
+    healthcheck:
+      test: ['CMD', 'traefik', 'healthcheck']
+      interval: 30s
+      timeout: 10s
+      retries: 3

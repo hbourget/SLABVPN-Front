@@ -2,6 +2,7 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import render, redirect
+from django.http import JsonResponse
 from rest_framework.permissions import IsAuthenticated
 
 from .forms import LookupForm, RegisterForm
@@ -190,3 +191,6 @@ def login_view(request):
     else:
         form = AuthenticationForm()
     return render(request, 'login.html', {'form': form})
+
+def health_check(request):
+    return JsonResponse({"status": "ok"})

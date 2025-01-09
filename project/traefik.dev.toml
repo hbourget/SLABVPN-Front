@@ -5,10 +5,6 @@
   [entryPoints.web]
     address = ":80"
 
-# Traefik dashboard over http
-[api]
-insecure = true
-
 [log]
 level = "DEBUG"
 
@@ -18,3 +14,5 @@ level = "DEBUG"
 [providers]
   [providers.docker]
     exposedByDefault = false
+
+[ping]
