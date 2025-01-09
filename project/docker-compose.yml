@@ -123,7 +123,7 @@ services:
       - ./data/grafana_data:/var/lib/grafana
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.grafana.rule=Host(`monitoring.localhost`)"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.localhost`)"
       - "traefik.http.routers.grafana.entrypoints=web"
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"
     depends_on:
