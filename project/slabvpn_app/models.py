@@ -8,14 +8,13 @@ import uuid
 class Provider(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.TextField(unique=True)
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
+    created_at = models.BigIntegerField()
+    updated_at = models.BigIntegerField()
 
     def __str__(self):
         return self.name
 
     class Meta:
-        #managed = False
         db_table = 'providers'
 
 
@@ -28,8 +27,10 @@ class Server(models.Model):
     location_type = models.CharField(max_length=50, choices=[('City', 'City location'), ('Country', 'Country location')])
     location_id = models.UUIDField()
 
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
+    is_active = models.BooleanField(default=1)
+
+    created_at = models.BigIntegerField()
+    updated_at = models.BigIntegerField()
 
     @property
     def location(self):
@@ -41,7 +42,7 @@ class Server(models.Model):
 
     @classmethod
     def get_servers_per_provider(cls, months=3):
-        time_period = now() - timedelta(days=months * 30)
+        time_period = int((now() - timedelta(days=months * 30)).timestamp())
 
         return (
             cls.objects
@@ -53,7 +54,7 @@ class Server(models.Model):
 
     @classmethod
     def get_number_of_countries_per_provider(cls, months=3):
-        time_period = now() - timedelta(days=months * 30)
+        time_period = int((now() - timedelta(days=months * 30)).timestamp())
 
         # Subquery to get the country ID when location_type is 'City'
         city_country_subquery = City.objects.filter(
@@ -82,21 +83,19 @@ class Server(models.Model):
         return self.name
 
     class Meta:
-        #managed = False
         db_table = 'servers'
 
 
 class Country(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.TextField(unique=True)
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
+    created_at = models.BigIntegerField()
+    updated_at = models.BigIntegerField()
 
     def __str__(self):
         return self.name
 
     class Meta:
-        #managed = False
         db_table = 'countries'
 
 
@@ -104,14 +103,13 @@ class City(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.TextField(unique=True)
     country = models.ForeignKey(Country, on_delete=models.CASCADE, related_name='cities')
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
+    created_at = models.BigIntegerField()
+    updated_at = models.BigIntegerField()
 
     def __str__(self):
         return self.name
 
     class Meta:
-        #managed = False
         db_table = 'cities'
 
 
@@ -119,14 +117,13 @@ class InIp(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     ip = models.TextField()
     server = models.ForeignKey(Server, on_delete=models.CASCADE, related_name='in_ips')
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
+    created_at = models.BigIntegerField()
+    updated_at = models.BigIntegerField()
 
     def __str__(self):
         return self.ip
 
     class Meta:
-        #managed = False
         db_table = 'in_ips'
 
     @classmethod
@@ -141,14 +138,14 @@ class OutIp(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     ip = models.TextField()
     server = models.ForeignKey(Server, on_delete=models.CASCADE, related_name='out_ips')
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
+    ip_reflector_id = models.ForeignKey('IpReflector', on_delete=models.CASCADE, related_name='out_ips')
+    created_at = models.BigIntegerField()
+    updated_at = models.BigIntegerField()
 
     def __str__(self):
         return self.ip
 
     class Meta:
-        #managed = False
         db_table = 'out_ips'
 
     @classmethod
@@ -164,8 +161,8 @@ class OutIp(models.Model):
 
     @classmethod
     def get_entries_per_month(cls, months=3):
-        today = now()
-        six_months_ago = today - timedelta(days=months * 30)
+        today = int(now().timestamp())
+        six_months_ago = int((now() - timedelta(days=months * 30)).timestamp())
         return (
             cls.objects.filter(created_at__gte=six_months_ago)
             .annotate(month=TruncMonth("created_at"))
@@ -173,3 +170,10 @@ class OutIp(models.Model):
             .annotate(count=Count("id"))
             .order_by("month")
         )
+
+class IpReflector(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    reflector_type = models.TextField()
+    name = models.TextField()
+    created_at = models.BigIntegerField()
+    updated_at = models.BigIntegerField()
