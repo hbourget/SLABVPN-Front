@@ -1,5 +1,8 @@
 # Intro
 
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Python Version](https://img.shields.io/badge/python-3.7%2B-purple.svg)
+
 Ce répo présente la partie Frontend du projet `SLAB-VPN`, qui fournit des informations sur les enregistrements d'IPs entrantes et sortantes des principaux providers VPN.
 Les données sont récupérées depuis une base de données PostgreSQL et sont présentés sur l'application Django. Une API est également disponible.
 La base PostgreSQL est alimenté par la partie Backend du projet.
