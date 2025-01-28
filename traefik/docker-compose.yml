@@ -1,0 +1,23 @@
+networks:
+  traefik_net:
+    name: traefik_net
+    external: true
+
+services:
+  traefik:
+    image: traefik:v3.3.2
+    command:
+      - '--ping'
+    ports:
+      - "80:80"
+      - "8081:8080"
+    volumes:
+      - "$PWD/traefik.toml:/etc/traefik/traefik.toml"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    networks:
+      - traefik_net
+    healthcheck:
+      test: [ 'CMD', 'traefik', 'healthcheck' ]
+      interval: 30s
+      timeout: 10s
+      retries: 3

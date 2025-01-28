@@ -1,0 +1,68 @@
+networks:
+  db_net:
+    name: db_net
+    driver: bridge
+  monitoring_net:
+    name: monitoring_net
+    external: true
+  traefik_net:
+    name: traefik_net
+    external: true
+
+services:
+  db:
+    image: postgres:17-alpine
+    env_file:
+      - db.env
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data/
+    networks:
+      - db_net
+    user: 1000:1000
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4:8.14
+    env_file:
+      - db.env
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pgadmin.rule=Host(`pgadmin.localhost`)"
+      - "traefik.http.routers.pgadmin.entrypoints=web"
+      - "traefik.http.services.pgadmin.loadbalancer.server.port=80"
+      - "traefik.docker.network=traefik_net"
+    volumes:
+      - ./data/pg_admin:/var/lib/pgadmin
+    networks:
+      - db_net
+      - traefik_net
+    healthcheck:
+      test: ["CMD", "wget", "-O", "-", "http://localhost:80/misc/ping"]
+      interval: 10s
+      timeout: 10s
+      start_period: 160s
+      retries: 3
+
+  postgres_exporter:
+    image: wrouesnel/postgres_exporter:latest
+    env_file:
+      - ../db.env
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - db_net
+      - monitoring_net
+    user: 1000:1000
+    environment:
+        DATA_SOURCE_NAME: "postgresql://postgres:${db:5432/postgres?sslmode=disable"
+    healthcheck:
+      test: ["CMD", "sh", "-c", "/postgres_exporter 2>&1 | grep -q 'bind: address already in use'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

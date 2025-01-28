@@ -1,0 +1,39 @@
+networks:
+  db_net:
+    name: backend_net
+    external: true
+  monitoring_net:
+    name: monitoring_net
+    external: true
+  traefik_net:
+    name: traefik_net
+    external: true
+
+services:
+  django:
+    build: .
+    env_file:
+      - ../web.env
+      - ../db.env
+    command: >
+      sh -c "python /code/manage.py makemigrations &&
+             python /code/manage.py migrate &&
+             gunicorn --bind 0.0.0.0:8000 core.wsgi:application"
+    volumes:
+      - .:/code
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.django.rule=Host(`django.localhost`)"
+      - "traefik.http.routers.django.entrypoints=web"
+      - "traefik.http.services.django.loadbalancer.server.port=8000"
+      - "traefik.docker.network=traefik_net"
+    networks:
+      - traefik_net
+      - db_net
+      - monitoring_net
+    user: 1000:1000
+    healthcheck:
+      test: ["CMD", "python", "/usr/src/app/healthcheck.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

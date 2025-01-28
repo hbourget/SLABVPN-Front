@@ -1,4 +1,4 @@
-# traefik.dev.toml
+# traefik.toml
 
 # listen on port 80
 [entryPoints]
